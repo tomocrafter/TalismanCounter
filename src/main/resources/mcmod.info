@@ -1,0 +1,16 @@
+[
+{
+  "modid": "talismancounter",
+  "name": "TalismanCounter",
+  "description": "Counts the talisman and render it in inventory",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["tomocrafter"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

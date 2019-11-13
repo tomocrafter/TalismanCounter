@@ -1,0 +1,88 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sponge"
+            url = "https://repo.spongepowered.org/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'org.spongepowered.mixin'
+
+version = "1.0"
+group = "net.tomocraft.talismancounter" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "TalismanCounter"
+
+sourceCompatibility = targetCompatibility = "1.8"
+
+def defaultEncoding = 'UTF-8'
+tasks.withType(AbstractCompile) each { it.options.encoding = defaultEncoding }
+
+minecraft {
+    version = "1.8.9-11.15.1.2318-1.8.9"
+    runDir = "run"
+    mappings = "stable_22"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'sponge'
+        url = 'http://repo.spongepowered.org/maven'
+    }
+}
+
+configurations {
+    embed
+    compile.extendsFrom(embed)
+}
+
+dependencies {
+    embed('org.spongepowered:mixin:latest.integration') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+        exclude module: 'gson'
+        exclude module: 'commons-io'
+        exclude module: 'log4j-core'
+    }
+}
+
+jar {
+    from configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
+
+    manifest.attributes(
+            MixinConfigs: 'mixin.talismancounter.json',
+            TweakOrder: '0',
+            TweakClass: 'net.tomocraft.tweaker.FMLLoadingPlugin',
+    )
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+mixin {
+    defaultObfuscationEnv searge
+    add sourceSets.main, "mixin.talismancounter.refmap.json"
+}
